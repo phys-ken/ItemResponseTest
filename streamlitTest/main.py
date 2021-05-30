@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import base64
 
-
 #ソースコードは、https://nigimitama.hatenablog.jp/entry/2020/01/25/110921
 # 表側が順番通りの整数でないデータフレームにも対応した場合
 def slice_df(df: pd.DataFrame, size: int) -> list:
@@ -34,10 +33,15 @@ def get_table_download_link(df):
     href = f'<a href="data:file/csv;base64,{b64}">Download csv file</a>'
     return href
 
+def create_download_link(val, filename):
+    b64 = base64.b64encode(val)  # val looks like b'...'
+    return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}.pdf">Download PDF file</a>'
+
+
 
 st.title("項目特性図作成アプリ")
 st.write("Pepperが配布している書式を読み込んでください。ページ下部に画像が出力されます。")
-st.write("本当はpdf出力ができるんだけど...保存の仕方がわからないです。")
+st.write("もっと下に、csvとPDFのダウンロード用のリンクが表示されます。")
 
 excelFilePath = st.file_uploader("ファイルアップロード", type='xlsx')
 
@@ -119,7 +123,7 @@ if excelFilePath is not None:
     i = grp
 
 
-    pdf = PdfPages('項目特性図.pdf')
+    pdf = PdfPages('output.pdf')
     for Q in range(1,len(ansList) + 1):
         for rank in range(grp):
             KT["Rank" + str(rank+1)] = data_slice[rank][Q].value_counts(normalize = True)
@@ -139,7 +143,8 @@ if excelFilePath is not None:
     for fignum in fignums:
         plt.figure(fignum)
         pdf.savefig()
-
     pdf.close()
 
+    with open("output.pdf", "rb") as pdf_file:
+        st.markdown(create_download_link(pdf_file.read(), "plotData"), unsafe_allow_html=True)
     st.markdown(get_table_download_link(dfAll), unsafe_allow_html=True)
