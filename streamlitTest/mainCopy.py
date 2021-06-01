@@ -41,7 +41,7 @@ def create_download_link(val, filename):
 
 st.title("項目特性図作成アプリ")
 st.write("Pepperが配布している書式を読み込んでください。ページ下部に画像が出力されます。")
-st.write("もっと下に、csvとPDFのダウンロード用のリンクが表示されます。")
+st.write("もっと下に、PDFダウンロード用のリンクが表示されます。")
 
 excelFilePath = st.file_uploader("ファイルアップロード", type='xlsx')
 
@@ -110,6 +110,8 @@ if excelFilePath is not None:
     # dfAll:全データ
     # dfbin:01のデータ
 
+    st.write(dfAll)
+
     #合計点が高い方からソート
     dfAll_sort = dfAll[9:].sort_values("合計点" , ascending=False)
 
@@ -125,18 +127,33 @@ if excelFilePath is not None:
         KT = pd.DataFrame() #１問ごとにデータを初期化
         st.markdown("---")
         for rank in range(grp):
-            KT["Rank" + str(rank+1)] = data_slice[rank][Q].value_counts(normalize = True)
-            st.write(KT["Rank" + str(rank+1)])
+            tmpDf = pd.DataFrame(data_slice[rank][Q].value_counts(normalize = True))
+            tmpDf.columns = ["Rank" + str(rank+1)]
+            KT = pd.concat([KT , tmpDf.T])
+        KT = KT.T
         KT = KT.sort_index(ascending=True)
         KT = KT.sort_index(axis = 1 , ascending=False)
 
-        fig , ax = plt.subplots()
+        fig = plt.figure()
+        ax = fig.add_subplot(2,2,1)
         ax.set_xlabel("Rank")
         ax.set_title("Q" + str(Q) + " Ans:" + str(ansList[Q-1]))
         ax.set_ylim(0,1)
 
         for i in KT.T.columns.values.tolist():
-            ax.plot(KT.T[i] , marker = "$" + str(i) + "$" , markersize = 10 , c='black' ,linestyle="dashed")
+            ax.plot(KT.T[i] , marker = "$" + str(i) + "$" , markersize = 7  ,linestyle="dashed")
+        
+        #全体の選択割合のグラフ
+        ax2 = fig.add_subplot(2,2,2)
+        dfQ = pd.DataFrame(dfAll.iloc[: ,9+Q].value_counts(normalize = True))
+        dfQ = dfQ.T
+        dfQ = dfQ.sort_index(axis = 1 , ascending=True)
+        dfQ.columns = [str(x) for x in dfQ.columns]
+        ax2.bar( dfQ.columns , dfQ.iloc[0,:])
+        ax2.set_ylim(bottom=0, top=1)
+        ax2.set_xlabel('Choices')  # x軸ラベル
+        ax2.set_title('Answer distribution  N = ' + str(len(dfAll)))  # グラフタイトル
+
         st.pyplot(fig)
         st.write(KT)
 
@@ -149,4 +166,4 @@ if excelFilePath is not None:
 
     with open("output.pdf", "rb") as pdf_file:
         st.markdown(create_download_link(pdf_file.read(), "plotData"), unsafe_allow_html=True)
-    st.markdown(get_table_download_link(dfAll), unsafe_allow_html=True)
+    #st.markdown(get_table_download_link(dfAll), unsafe_allow_html=True)

@@ -1,2 +1,3 @@
 streamlit
 base64
+pandas
