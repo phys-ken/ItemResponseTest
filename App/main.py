@@ -44,8 +44,8 @@ def create_download_link(val, filename):
 
 
 st.title("項目特性図作成アプリ")
-st.write("Pepperが配布している書式を読み込んでください。ページ下部に画像が出力されます。")
-st.write("もっと下に、PDFダウンロード用のリンクが表示されます。")
+st.write("Pepperが配布しているExcelファイルを読み込んでください。\n 【copy me】 と【リスト】のシートが最後にあることを確認してください。")
+st.write("ページ下部にPDFが、そのもっと下にPDFダウンロード用のリンクが表示されます。")
 
 excelFilePath = st.file_uploader("ファイルアップロード", type='xlsx')
 
@@ -76,9 +76,9 @@ if excelFilePath is not None:
         dfTmp.insert(0, '実施年度', yyyy)
         dfTmp.insert(0, '学校名', school)
         print(school + "の重複削除前： " + str(len(dfTmp)))
-        print(school + "の重複削除前： " + str(len(dfTmp.drop_duplicates())))
+        print(school + "の重複削除後： " + str(len(dfTmp.drop_duplicates())))
         st.write(school + "の重複削除前： " + str(len(dfTmp)))
-        st.write(school + "の重複削除前： " + str(len(dfTmp.drop_duplicates())))
+        st.write(school + "の重複削除後： " + str(len(dfTmp.drop_duplicates())))
 
         dfTmp = dfTmp.drop_duplicates()
 
