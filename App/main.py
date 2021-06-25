@@ -44,7 +44,7 @@ def create_download_link(val, filename):
 
 
 st.title("項目特性図作成アプリ")
-st.write("Pepperが配布しているExcelファイルを読み込んでください。\n 【copy me】 と【リスト】のシートが最後にあることを確認してください。")
+st.write("Pepperが配布しているExcelファイルを読み込んでください。\n ")
 st.write("ページ下部にPDFが、そのもっと下にPDFダウンロード用のリンクが表示されます。")
 
 excelFilePath = st.file_uploader("ファイルアップロード", type='xlsx')
